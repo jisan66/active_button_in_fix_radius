@@ -26,7 +26,7 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> {
   String _locationMessage = "";
   double distance= 0.0;
-  double distanceAccepted = 10;
+  double distanceAccepted = 2.5;
   bool isOkay = false;
   bool isLoading = false;
 
@@ -42,6 +42,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   _getCurrentLocation() async {
     isLoading = true;
+    setState(() {});
     try {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
@@ -49,7 +50,7 @@ class MyHomePageState extends State<MyHomePage> {
       setState(() {
         _locationMessage =
         "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
-        distance = GeoUtils.calculateDistance(position.latitude, position.longitude, 23.761288, 90.371794);
+        distance = GeoUtils.calculateDistance(position.latitude, position.longitude, 23.76127904645549, 90.37178478043978);
         distance>distanceAccepted ? isOkay = false : isOkay = true;
         isLoading = false;
       });
