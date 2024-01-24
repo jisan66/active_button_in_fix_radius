@@ -10,22 +10,25 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePageState extends State<MyHomePage> {
   String _locationMessage = "";
   double distance= 0.0;
-  double distanceAccepted = 100;
+  double distanceAccepted = 10;
   bool isOkay = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -34,10 +37,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onButtonPressed(){
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You are inside the Location Radius")));
+  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("You are inside the Location Radius")));
   }
 
   _getCurrentLocation() async {
+    isLoading = true;
     try {
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
@@ -45,8 +49,9 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _locationMessage =
         "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
-        distance = GeoUtils.calculateDistance(position.latitude, position.longitude, 23.754233, 90.399999);
+        distance = GeoUtils.calculateDistance(position.latitude, position.longitude, 23.761288, 90.371794);
         distance>distanceAccepted ? isOkay = false : isOkay = true;
+        isLoading = false;
       });
     } catch (e) {
       print(e);
@@ -57,25 +62,31 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Location App"),
+        title: const Text("Location App"),
       ),
       body: Center(
-        child: Column(
+        child: isLoading? const CircularProgressIndicator() : Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Center(
               child: Text(
                 _locationMessage,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
             ),
             Text(distance.toString()),
-            distance>distanceAccepted ? Text("Distance too much") : Text("Distance OK"),
+            distance>distanceAccepted ? const Text("Distance too much") : const Text("Distance OK"),
             CustomButtonWidget(onTap: (){
               isOkay? onButtonPressed() : null;
             }, title: "Submit", btnColor: isOkay?  Colors.green : Colors.red)
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){_getCurrentLocation();},
+        splashColor: Colors.orange,
+        foregroundColor: Colors.orange,
+        child: const Icon(Icons.location_on_outlined),
       ),
     );
   }
